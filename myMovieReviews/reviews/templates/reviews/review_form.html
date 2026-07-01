@@ -1,0 +1,23 @@
+{% extends 'reviews/base.html' %}
+
+{% block content %}
+    {% if review %}
+        <h1 style="text-align: center;">리뷰 수정</h1>
+    {% else %}
+        <h1 style="text-align: center;">리뷰 작성</h1>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Save</button>
+
+        {% if review %}
+            <a href="{% url 'review-detail' review.pk %}" class="btn btn-gray">취소</a>
+        {% else %}
+            <a href="{% url 'review-list' %}" class="btn btn-gray">취소</a>
+        {% endif %}
+    </form>
+{% endblock %}
