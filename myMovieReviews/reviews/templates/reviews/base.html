@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>My Movie Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+            color: #222;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            text-decoration: none;
+            color: black;
+        }
+
+        .logo span {
+            color: #ff2f6e;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .nav-link:hover {
+            color: #ff2f6e;
+        }
+
+        .card-wrap {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #f3f3f3;
+            width: 220px;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        .card h2 {
+            font-size: 22px;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .card a:hover {
+            color: #ff2f6e;
+        }
+
+        .detail-box {
+            background: #f5f5f5;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .review-content {
+            background: #f5f5f5;
+            padding: 25px;
+            border-radius: 8px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        form {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        form p {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 9px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button, .btn {
+            border: none;
+            background: #ff2f6e;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-gray {
+            background: #666;
+        }
+
+        .top-actions {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .inline-form {
+            display: inline;
+            background: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .inline-form button {
+            background: none;
+            color: #333;
+            padding: 0;
+            font-weight: bold;
+        }
+
+        .inline-form button:hover {
+            color: #ff2f6e;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'review-list' %}" class="logo">
+            my<span>Movie</span>reviews
+        </a>
+
+        <a href="{% url 'review-create' %}" class="nav-link">
+            Add a New review
+        </a>
+    </header>
+
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

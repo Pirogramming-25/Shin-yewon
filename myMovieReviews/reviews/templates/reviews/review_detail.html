@@ -1,0 +1,31 @@
+{% extends 'reviews/base.html' %}
+
+{% block content %}
+    <div class="top-actions">
+        <a href="{% url 'review-update' review.pk %}" class="nav-link">수정</a>
+
+        &nbsp;
+
+        <form action="{% url 'review-delete' review.pk %}" method="POST" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">
+                삭제
+            </button>
+        </form>
+    </div>
+
+    <h1>{{ review.title }}</h1>
+
+    <div class="detail-box">
+        <p><strong>개봉년도</strong> {{ review.release_year }}년</p>
+        <p><strong>감독</strong> {{ review.director }}</p>
+        <p><strong>주연</strong> {{ review.actors }}</p>
+        <p><strong>장르</strong> {{ review.genre }}</p>
+        <p><strong>별점</strong> {{ review.rating }}</p>
+        <p><strong>러닝타임</strong> {{ review.running_time }}분</p>
+    </div>
+
+    <div class="review-content">
+        {{ review.content }}
+    </div>
+{% endblock %}

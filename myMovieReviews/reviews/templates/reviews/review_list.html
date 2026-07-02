@@ -1,0 +1,21 @@
+{% extends 'reviews/base.html' %}
+
+{% block content %}
+    <div class="card-wrap">
+        {% for review in reviews %}
+            <div class="card">
+                <h2>
+                    <a href="{% url 'review-detail' review.pk %}">
+                        {{ review.title }}
+                    </a>
+                </h2>
+
+                <p><strong>개봉년도</strong> {{ review.release_year }}년</p>
+                <p><strong>장르</strong> {{ review.genre }}</p>
+                <p><strong>별점</strong> {{ review.rating }}</p>
+            </div>
+        {% empty %}
+            <p>아직 작성한 리뷰가 없습니다.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
