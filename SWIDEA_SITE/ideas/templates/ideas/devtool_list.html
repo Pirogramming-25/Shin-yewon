@@ -1,0 +1,26 @@
+{% extends 'ideas/base.html' %}
+
+{% block content %}
+    <div class="top-area">
+        <h2 class="page-title">DevTool List</h2>
+
+        <a class="btn primary" href="{% url 'ideas:devtool_create' %}">개발툴 등록</a>
+    </div>
+
+    <div class="list-box">
+        {% for devtool in devtools %}
+            <div class="devtool-item">
+                <h3>
+                    <a href="{% url 'ideas:devtool_detail' devtool.id %}">
+                        {{ devtool.name }}
+                    </a>
+                </h3>
+
+                <p><strong>종류:</strong> {{ devtool.kind }}</p>
+                <p>{{ devtool.content }}</p>
+            </div>
+        {% empty %}
+            <p class="empty-text">등록된 개발툴이 없습니다.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

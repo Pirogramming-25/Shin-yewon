@@ -1,0 +1,49 @@
+{% extends 'ideas/base.html' %}
+
+{% block content %}
+    <h2 class="page-title">Idea Detail</h2>
+
+    <div class="detail-box">
+        <h1>{{ idea.title }}</h1>
+
+        <p>
+            찜 상태:
+            <a class="star-inline" href="{% url 'ideas:idea_star_toggle' idea.id %}?next={{ request.path }}">
+                {% if is_starred %}
+                    ★ 찜한 아이디어
+                {% else %}
+                    ☆ 찜하기
+                {% endif %}
+            </a>
+        </p>
+
+        {% if idea.image %}
+            <img class="detail-img" src="{{ idea.image.url }}">
+        {% else %}
+            <div class="detail-no-img">No Image</div>
+        {% endif %}
+
+        <p><strong>아이디어 설명</strong></p>
+        <p>{{ idea.content }}</p>
+
+        <p>
+            <strong>관심도:</strong>
+            <a class="interest-btn" href="{% url 'ideas:idea_interest' idea.id 'minus' %}">-</a>
+            {{ idea.interest }}
+            <a class="interest-btn" href="{% url 'ideas:idea_interest' idea.id 'plus' %}">+</a>
+        </p>
+
+        <p>
+            <strong>개발툴:</strong>
+            <a href="{% url 'ideas:devtool_detail' idea.devtool.id %}">
+                {{ idea.devtool.name }}
+            </a>
+        </p>
+
+        <div class="button-area">
+            <a class="btn danger" href="{% url 'ideas:idea_delete' idea.id %}">삭제</a>
+            <a class="btn" href="{% url 'ideas:idea_list' %}">목록</a>
+            <a class="btn primary" href="{% url 'ideas:idea_update' idea.id %}">수정</a>
+        </div>
+    </div>
+{% endblock %}

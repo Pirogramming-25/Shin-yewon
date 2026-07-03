@@ -1,0 +1,59 @@
+{% extends 'ideas/base.html' %}
+
+{% block content %}
+    <div class="top-area">
+        <h2 class="page-title">Idea List</h2>
+
+        <form method="GET" class="sort-box">
+            <select name="sort">
+                <option value="latest" {% if sort == "latest" %}selected{% endif %}>최신순</option>
+                <option value="old" {% if sort == "old" %}selected{% endif %}>등록순</option>
+                <option value="name" {% if sort == "name" %}selected{% endif %}>이름순</option>
+                <option value="interest" {% if sort == "interest" %}selected{% endif %}>관심도순</option>
+                <option value="star" {% if sort == "star" %}selected{% endif %}>찜하기순</option>
+            </select>
+
+            <button type="submit">정렬</button>
+        </form>
+    </div>
+
+    <div class="idea-grid">
+        {% for idea in ideas %}
+            <div class="idea-card">
+
+                <a class="star" href="{% url 'ideas:idea_star_toggle' idea.id %}?next={{ request.path }}">
+                    {% if idea.id in starred_ids %}
+                        ★
+                    {% else %}
+                        ☆
+                    {% endif %}
+                </a>
+
+                {% if idea.image %}
+                    <img class="idea-img" src="{{ idea.image.url }}">
+                {% else %}
+                    <div class="no-img-box">No Image</div>
+                {% endif %}
+
+                <h3 class="idea-title">
+                    <a href="{% url 'ideas:idea_detail' idea.id %}">
+                        {{ idea.title }}
+                    </a>
+                </h3>
+
+                <div class="idea-info">
+                    <p>예상 개발툴: {{ idea.devtool.name }}</p>
+
+                    <p>
+                        아이디어 관심도:
+                        <a class="interest-btn" href="{% url 'ideas:idea_interest' idea.id 'minus' %}">-</a>
+                        {{ idea.interest }}
+                        <a class="interest-btn" href="{% url 'ideas:idea_interest' idea.id 'plus' %}">+</a>
+                    </p>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-text">등록된 아이디어가 없습니다.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
