@@ -1,0 +1,23 @@
+{% extends 'ideas/base.html' %}
+
+{% block content %}
+    {% if devtool %}
+        <h2 class="page-title">DevTool Update</h2>
+    {% else %}
+        <h2 class="page-title">DevTool Register</h2>
+    {% endif %}
+
+    <div class="form-box">
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button class="btn primary" type="submit">SUBMIT</button>
+        </form>
+
+        <br>
+
+        <a class="btn" href="{% url 'ideas:devtool_list' %}">목록으로</a>
+    </div>
+{% endblock %}

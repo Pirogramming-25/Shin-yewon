@@ -1,0 +1,15 @@
+{% extends 'ideas/base.html' %}
+
+{% block content %}
+    <h2 class="page-title">Idea Delete</h2>
+
+    <div class="detail-box">
+        <p>정말 "{{ idea.title }}" 아이디어를 삭제하시겠습니까?</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button class="btn danger" type="submit">삭제</button>
+            <a class="btn" href="{% url 'ideas:idea_detail' idea.id %}">취소</a>
+        </form>
+    </div>
+{% endblock %}
