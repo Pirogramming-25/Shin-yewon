@@ -1,49 +1,73 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="profile-section">
-    <div class="profile-top">
-        <div class="profile-big-circle"></div>
+<section class="profile-section instagram-profile">
+
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <span>{{ profile_user.username|slice:":1"|upper }}</span>
+        </div>
 
         <div class="profile-info">
-            <h2>{{ profile_user.username }}</h2>
+            <div class="profile-title-row">
+                <h2>{{ profile_user.username }}</h2>
 
-            <div class="profile-counts">
-                <span>게시물 {{ posts.count }}</span>
-                <span>팔로워 {{ followers_count }}</span>
-                <span>팔로잉 {{ following_count }}</span>
+                {% if profile_user == request.user %}
+                    <span class="profile-setting">⚙</span>
+                {% endif %}
+            </div>
+
+            <div class="profile-stats">
+                <span><strong>게시물</strong> {{ posts.count }}</span>
+                <span><strong>팔로워</strong> {{ followers_count }}</span>
+                <span><strong>팔로잉</strong> {{ following_count }}</span>
             </div>
 
             {% if profile_user == request.user %}
-                <p class="profile-desc">내 프로필입니다.</p>
+                <p class="profile-name">내 프로필입니다.</p>
             {% else %}
-                <form action="{% url 'posts:follow_toggle' profile_user.username %}" method="POST">
-                    {% csrf_token %}
-
-                    {% if is_following %}
-                        <button type="submit" class="follow-btn unfollow">언팔로우</button>
-                    {% else %}
-                        <button type="submit" class="follow-btn">팔로우</button>
-                    {% endif %}
-                </form>
-
-    <p class="profile-desc">{{ profile_user.username }}님의 프로필입니다.</p>
-{% endif %}
+                <p class="profile-name">{{ profile_user.username }}님의 프로필입니다.</p>
+            {% endif %}
         </div>
+    </div>
+
+    <div class="profile-action-row">
+        {% if profile_user == request.user %}
+            <button type="button" class="profile-gray-btn">프로필 편집</button>
+            <button type="button" class="profile-gray-btn">보관함 보기</button>
+        {% else %}
+            <form action="{% url 'posts:follow_toggle' profile_user.username %}" method="POST" class="profile-follow-form">
+                {% csrf_token %}
+
+                {% if is_following %}
+                    <button type="submit" class="profile-gray-btn">언팔로우</button>
+                {% else %}
+                    <button type="submit" class="profile-blue-btn">팔로우</button>
+                {% endif %}
+            </form>
+        {% endif %}
+    </div>
+
+    <div class="profile-tab-row">
+        <button type="button" class="profile-tab active">게시물</button>
+        <button type="button" class="profile-tab">태그됨</button>
     </div>
 
     <div class="profile-posts">
         {% for post in posts %}
-            <div class="profile-post-item">
+            <a href="{% url 'posts:post_detail' post.id %}" class="profile-post-item">
                 {% if post.image %}
                     <img src="{{ post.image.url }}" alt="프로필 게시글 이미지">
                 {% else %}
                     <div class="profile-no-img">이미지 없음</div>
                 {% endif %}
-            </div>
+            </a>
         {% empty %}
-            <p class="empty-text">아직 작성한 게시글이 없습니다.</p>
+            <div class="profile-empty-box">
+                <p>아직 작성한 게시글이 없습니다.</p>
+            </div>
         {% endfor %}
     </div>
+
 </section>
 {% endblock %}

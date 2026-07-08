@@ -2,20 +2,60 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.db.models import Count
+
 from .models import Post, Like, Comment, Follow, Story
 from .forms import PostForm, CommentForm, StoryForm
 
-def home(request):
-    posts = Post.objects.all().order_by('-created_at')
-    stories = Story.objects.all().order_by('-created_at')
 
+def home(request):
+    sort = request.GET.get('sort', 'latest')
     liked_posts = []
+
     if request.user.is_authenticated:
-        liked_posts = Like.objects.filter(user=request.user).values_list('post_id', flat=True)
+        following_ids = Follow.objects.filter(
+            follower=request.user
+        ).values_list('following_id', flat=True)
+
+        feed_user_ids = list(following_ids)
+        feed_user_ids.append(request.user.id)
+
+        posts = Post.objects.filter(author_id__in=feed_user_ids)
+        stories = Story.objects.filter(author_id__in=feed_user_ids).order_by('-created_at')
+
+        liked_posts = list(
+            Like.objects.filter(user=request.user).values_list('post_id', flat=True)
+        )
+    else:
+        posts = Post.objects.all()
+        stories = Story.objects.all().order_by('-created_at')
+
+    if sort == 'likes':
+        posts = posts.annotate(like_count=Count('likes')).order_by('-like_count', '-created_at')
+    elif sort == 'comments':
+        posts = posts.annotate(comment_count=Count('comments')).order_by('-comment_count', '-created_at')
+    else:
+        posts = posts.order_by('-created_at')
 
     return render(request, 'posts/home.html', {
         'posts': posts,
         'stories': stories,
+        'liked_posts': liked_posts,
+        'sort': sort,
+    })
+
+@login_required(login_url='/admin/login/')
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    liked_posts = []
+    if request.user.is_authenticated:
+        liked_posts = list(
+            Like.objects.filter(user=request.user).values_list('post_id', flat=True)
+        )
+
+    return render(request, 'posts/post_detail.html', {
+        'post': post,
         'liked_posts': liked_posts,
     })
 
@@ -33,6 +73,7 @@ def post_create(request):
         form = PostForm()
 
     return render(request, 'posts/post_form.html', {'form': form})
+
 
 @login_required(login_url='/admin/login/')
 def post_update(request, post_id):
@@ -65,6 +106,7 @@ def post_delete(request, post_id):
 
     return redirect('posts:home')
 
+
 @login_required(login_url='/admin/login/')
 def post_like(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -87,7 +129,8 @@ def post_like(request, post_id):
         })
 
     return redirect('posts:home')
-    
+
+
 @login_required(login_url='/admin/login/')
 def comment_create(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -105,14 +148,20 @@ def comment_create(request, post_id):
 
 
 @login_required(login_url='/admin/login/')
-def comment_delete(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
+def reply_create(request, comment_id):
+    parent_comment = get_object_or_404(Comment, id=comment_id)
 
-    if comment.author == request.user:
-        comment.delete()
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.post = parent_comment.post
+            reply.author = request.user
+            reply.parent = parent_comment
+            reply.save()
 
     return redirect('posts:home')
-
 
 
 @login_required(login_url='/admin/login/')
@@ -135,6 +184,17 @@ def comment_update(request, comment_id):
         'form': form,
         'comment': comment,
     })
+
+
+@login_required(login_url='/admin/login/')
+def comment_delete(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.author == request.user:
+        comment.delete()
+
+    return redirect('posts:home')
+
 
 @login_required(login_url='/admin/login/')
 def profile(request, username):
@@ -159,19 +219,6 @@ def profile(request, username):
         'is_following': is_following,
     })
 
-@login_required(login_url='/admin/login/')
-def user_search(request):
-    keyword = request.GET.get('keyword', '')
-    users = []
-
-    if keyword:
-        users = User.objects.filter(username__icontains=keyword).exclude(id=request.user.id)
-
-    return render(request, 'posts/user_search.html', {
-        'keyword': keyword,
-        'users': users,
-    })
-
 
 @login_required(login_url='/admin/login/')
 def follow_toggle(request, username):
@@ -193,6 +240,27 @@ def follow_toggle(request, username):
 
     return redirect('posts:profile', username=username)
 
+
+@login_required(login_url='/admin/login/')
+def user_search(request):
+    keyword = request.GET.get('keyword', '')
+    users = []
+    searched_posts = []
+
+    if keyword:
+        users = User.objects.filter(
+            username__icontains=keyword
+        ).exclude(id=request.user.id)
+
+        searched_posts = Post.objects.filter(
+            content__icontains=keyword
+        ).order_by('-created_at')
+
+    return render(request, 'posts/user_search.html', {
+        'keyword': keyword,
+        'users': users,
+        'searched_posts': searched_posts,
+    })
 
 
 @login_required(login_url='/admin/login/')

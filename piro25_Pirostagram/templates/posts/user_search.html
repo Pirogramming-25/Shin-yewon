@@ -2,30 +2,57 @@
 
 {% block content %}
 <section class="search-section">
-    <h2>유저 검색</h2>
+    <h2>검색</h2>
 
     <form action="" method="GET" class="search-form">
-        <input type="text" name="keyword" placeholder="사용자 이름 검색" value="{{ keyword }}">
+        <input type="text" name="keyword" placeholder="유저 또는 게시글 검색" value="{{ keyword }}">
         <button type="submit">검색</button>
     </form>
 
-    <div class="search-result">
-        {% if keyword %}
-            {% for user_item in users %}
-                <a href="{% url 'posts:profile' user_item.username %}" class="search-user">
-                    <div class="profile-circle"></div>
+    {% if keyword %}
+        <div class="search-block">
+            <h3>유저 검색 결과</h3>
 
-                    <div>
-                        <strong>{{ user_item.username }}</strong>
-                        <p>프로필 보기</p>
-                    </div>
-                </a>
-            {% empty %}
-                <p class="empty-text">검색 결과가 없습니다.</p>
-            {% endfor %}
-        {% else %}
-            <p class="empty-text">검색어를 입력해주세요.</p>
-        {% endif %}
-    </div>
+            <div class="search-result">
+                {% for user_item in users %}
+                    <a href="{% url 'posts:profile' user_item.username %}" class="search-user">
+                        <div class="profile-circle"></div>
+
+                        <div>
+                            <strong>{{ user_item.username }}</strong>
+                            <p>프로필 보기</p>
+                        </div>
+                    </a>
+                {% empty %}
+                    <p class="empty-text">검색된 유저가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="search-block">
+            <h3>게시글 검색 결과</h3>
+
+            <div class="searched-posts">
+                {% for post in searched_posts %}
+                    <article class="searched-post-card">
+                        <a href="{% url 'posts:profile' post.author.username %}" class="searched-post-author">
+                            {{ post.author.username }}
+                        </a>
+
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="게시글 이미지">
+                        {% endif %}
+
+                        <p>{{ post.content }}</p>
+                        <span>좋아요 {{ post.likes.count }}개 · 댓글 {{ post.comments.count }}개</span>
+                    </article>
+                {% empty %}
+                    <p class="empty-text">검색된 게시글이 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p class="empty-text">검색어를 입력해주세요.</p>
+    {% endif %}
 </section>
 {% endblock %}

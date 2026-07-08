@@ -1,47 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="feed-section">
+<section class="post-detail-section">
+    <article class="post-detail-card">
+        <div class="post-detail-image-box">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="게시글 이미지">
+            {% else %}
+                <div class="post-image">이미지 없음</div>
+            {% endif %}
+        </div>
 
-    <div class="story-list">
-        <a href="{% url 'posts:story_create' %}" class="story-item add-story-item">
-            <div class="story-add-circle">+</div>
-            <span>스토리+</span>
-        </a>
-
-        {% for story in stories %}
-            <div class="story-item" onclick="openStory('{{ story.image.url }}')">
-                {% if story.image %}
-                    <img src="{{ story.image.url }}" alt="스토리 이미지">
-                {% endif %}
-                <span>{{ story.author.username }}</span>
-            </div>
-        {% empty %}
-            <p class="empty-text story-empty">아직 스토리가 없습니다.</p>
-        {% endfor %}
-    </div>
-
-    <div class="sort-box">
-        <span>게시글 정렬 기준:</span>
-
-        <a href="{% url 'posts:home' %}?sort=latest"
-           class="{% if sort == 'latest' %}active{% endif %}">
-            최신순
-        </a>
-
-        <a href="{% url 'posts:home' %}?sort=likes"
-           class="{% if sort == 'likes' %}active{% endif %}">
-            좋아요순
-        </a>
-
-        <a href="{% url 'posts:home' %}?sort=comments"
-           class="{% if sort == 'comments' %}active{% endif %}">
-            댓글순
-        </a>
-    </div>
-
-    {% for post in posts %}
-        <article class="post-card">
+        <div class="post-detail-info">
             <div class="post-header">
                 <div class="profile-circle"></div>
 
@@ -61,42 +31,14 @@
                 {% endif %}
             </div>
 
-            <a href="{% url 'posts:post_detail' post.id %}" class="post-image-link">
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" alt="게시글 이미지" class="post-img">
-                {% else %}
-                    <div class="post-image">이미지 없음</div>
-                {% endif %}
-            </a>
-
-            <div class="post-actions">
-                <button 
-                    type="button"
-                    class="like-btn {% if post.id in liked_posts %}liked{% endif %}"
-                    data-post-id="{{ post.id }}"
-                    data-like-url="{% url 'posts:post_like' post.id %}"
-                >
-                    {% if post.id in liked_posts %}
-                        ♥
-                    {% else %}
-                        ♡
-                    {% endif %}
-                </button>
-
-                <span>댓글</span>
-                <span>공유</span>
+            <div class="post-detail-content">
+                <p>
+                    <strong>{{ post.author.username }}</strong>
+                    {{ post.content }}
+                </p>
             </div>
 
-            <p class="post-like">
-                좋아요 <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>개
-            </p>
-
-            <p class="post-content">
-                <strong>{{ post.author.username }}</strong>
-                {{ post.content }}
-            </p>
-
-            <div class="comment-list">
+            <div class="comment-list detail-comment-list">
                 {% for comment in post.comments.all %}
                     {% if not comment.parent %}
                         <div class="comment-item">
@@ -163,21 +105,34 @@
                 {% endfor %}
             </div>
 
+            <div class="post-actions detail-actions">
+                <button 
+                    type="button"
+                    class="like-btn {% if post.id in liked_posts %}liked{% endif %}"
+                    data-post-id="{{ post.id }}"
+                    data-like-url="{% url 'posts:post_like' post.id %}"
+                >
+                    {% if post.id in liked_posts %}
+                        ♥
+                    {% else %}
+                        ♡
+                    {% endif %}
+                </button>
+
+                <span>댓글</span>
+                <span>공유</span>
+            </div>
+
+            <p class="post-like">
+                좋아요 <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>개
+            </p>
+
             <form action="{% url 'posts:comment_create' post.id %}" method="POST" class="comment-form">
                 {% csrf_token %}
                 <input type="text" name="content" placeholder="댓글 달기...">
                 <button type="submit">게시</button>
             </form>
-        </article>
-    {% empty %}
-        <p class="empty-text">아직 게시글이 없습니다.</p>
-    {% endfor %}
+        </div>
+    </article>
 </section>
-
-<div id="storyModal" class="story-modal">
-    <div class="story-modal-box">
-        <button type="button" class="story-close" onclick="closeStory()">×</button>
-        <img id="storyModalImage" src="" alt="스토리 크게 보기">
-    </div>
-</div>
 {% endblock %}
