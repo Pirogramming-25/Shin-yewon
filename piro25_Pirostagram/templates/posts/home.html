@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="feed-section">
+    <div class="story-list">
+        {% for story in stories %}
+            <div class="story-item" onclick="openStory('{{ story.image.url }}')">
+                {% if story.image %}
+                    <img src="{{ story.image.url }}" alt="스토리 이미지">
+                {% endif %}
+                <span>{{ story.author.username }}</span>
+            </div>
+        {% empty %}
+            <p class="empty-text">아직 스토리가 없습니다.</p>
+        {% endfor %}
+    </div>
+
+<div id="storyModal" class="story-modal">
+    <div class="story-modal-box">
+        <button type="button" class="story-close" onclick="closeStory()">×</button>
+        <img id="storyModalImage" src="" alt="스토리 크게 보기">
+    </div>
+</div>
+
+    {% for post in posts %}
+        <article class="post-card">
+            <div class="post-header">
+                <div class="profile-circle"></div>
+                <a href="{% url 'posts:profile' post.author.username %}" class="username">
+                    {{ post.author.username }}
+                </a>
+
+                {% if post.author == request.user %}
+                    <div class="post-menu">
+                        <a href="{% url 'posts:post_update' post.id %}">수정</a>
+
+                        <form action="{% url 'posts:post_delete' post.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">삭제</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="게시글 이미지" class="post-img">
+            {% else %}
+                <div class="post-image">이미지 없음</div>
+            {% endif %}
+
+            <div class="post-actions">
+                <button 
+                    type="button"
+                    class="like-btn"
+                    data-post-id="{{ post.id }}"
+                    data-like-url="{% url 'posts:post_like' post.id %}"
+                >
+                    {% if post.id in liked_posts %}
+                        ♥
+                    {% else %}
+                        ♡
+                    {% endif %}
+                </button>
+
+                <span>댓글</span>
+                <span>공유</span>
+            </div>
+
+            <p class="post-like">
+                좋아요 <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>개
+            </p>
+
+            <p class="post-content">
+                <strong>{{ post.author.username }}</strong>
+                {{ post.content }}
+            </p>
+
+            <div class="comment-list">
+                {% for comment in post.comments.all %}
+                    <div class="comment-item">
+                        <p>
+                            <strong>{{ comment.author.username }}</strong>
+                            {{ comment.content }}
+                        </p>
+
+                        {% if comment.author == request.user %}
+                            <div class="comment-menu">
+                                <a href="{% url 'posts:comment_update' comment.id %}">수정</a>
+
+                                <form action="{% url 'posts:comment_delete' comment.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit">삭제</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="no-comment">아직 댓글이 없습니다.</p>
+                {% endfor %}
+            </div>
+
+            <form action="{% url 'posts:comment_create' post.id %}" method="POST" class="comment-form">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="댓글 달기...">
+                <button type="submit">게시</button>
+            </form>
+        </article>
+    {% empty %}
+        <p class="empty-text">아직 게시글이 없습니다.</p>
+    {% endfor %}
+</section>
+{% endblock %}

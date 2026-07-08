@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="profile-top">
+        <div class="profile-big-circle"></div>
+
+        <div class="profile-info">
+            <h2>{{ profile_user.username }}</h2>
+
+            <div class="profile-counts">
+                <span>게시물 {{ posts.count }}</span>
+                <span>팔로워 {{ followers_count }}</span>
+                <span>팔로잉 {{ following_count }}</span>
+            </div>
+
+            {% if profile_user == request.user %}
+                <p class="profile-desc">내 프로필입니다.</p>
+            {% else %}
+                <form action="{% url 'posts:follow_toggle' profile_user.username %}" method="POST">
+                    {% csrf_token %}
+
+                    {% if is_following %}
+                        <button type="submit" class="follow-btn unfollow">언팔로우</button>
+                    {% else %}
+                        <button type="submit" class="follow-btn">팔로우</button>
+                    {% endif %}
+                </form>
+
+    <p class="profile-desc">{{ profile_user.username }}님의 프로필입니다.</p>
+{% endif %}
+        </div>
+    </div>
+
+    <div class="profile-posts">
+        {% for post in posts %}
+            <div class="profile-post-item">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="프로필 게시글 이미지">
+                {% else %}
+                    <div class="profile-no-img">이미지 없음</div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="empty-text">아직 작성한 게시글이 없습니다.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="search-section">
+    <h2>유저 검색</h2>
+
+    <form action="" method="GET" class="search-form">
+        <input type="text" name="keyword" placeholder="사용자 이름 검색" value="{{ keyword }}">
+        <button type="submit">검색</button>
+    </form>
+
+    <div class="search-result">
+        {% if keyword %}
+            {% for user_item in users %}
+                <a href="{% url 'posts:profile' user_item.username %}" class="search-user">
+                    <div class="profile-circle"></div>
+
+                    <div>
+                        <strong>{{ user_item.username }}</strong>
+                        <p>프로필 보기</p>
+                    </div>
+                </a>
+            {% empty %}
+                <p class="empty-text">검색 결과가 없습니다.</p>
+            {% endfor %}
+        {% else %}
+            <p class="empty-text">검색어를 입력해주세요.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

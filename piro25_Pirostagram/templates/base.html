@@ -1,0 +1,107 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Pirostagram</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div id="wrap">
+        <aside class="sidebar">
+            <h1 class="logo">Pirostagram</h1>
+
+            <nav class="menu">
+                <a href="{% url 'posts:home' %}">홈</a>
+                <a href="{% url 'posts:user_search' %}">검색</a>
+                <a href="{% url 'posts:post_create' %}">만들기</a>
+                <a href="{% url 'posts:story_create' %}">스토리</a>
+
+            
+                {% if user.is_authenticated %}
+                    <a href="{% url 'posts:profile' user.username %}">프로필</a>
+                {% else %}
+                    <a href="/admin/login/">프로필</a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <script>
+        function openStory(imageUrl) {
+            const modal = document.getElementById('storyModal');
+            const modalImage = document.getElementById('storyModalImage');
+
+            modalImage.src = imageUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeStory() {
+            const modal = document.getElementById('storyModal');
+            const modalImage = document.getElementById('storyModalImage');
+
+            modal.style.display = 'none';
+            modalImage.src = '';
+        }
+    </script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        const likeButtons = document.querySelectorAll('.like-btn');
+
+        likeButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const postId = button.dataset.postId;
+                const likeUrl = button.dataset.likeUrl;
+
+                fetch(likeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.is_liked) {
+                        button.textContent = '♥';
+                    } else {
+                        button.textContent = '♡';
+                    }
+
+                    const likeCount = document.getElementById('like-count-' + postId);
+                    likeCount.textContent = data.like_count;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
