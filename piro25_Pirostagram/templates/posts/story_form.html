@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="form-section">
+    <h2>스토리 만들기</h2>
+
+    <form action="" method="POST" enctype="multipart/form-data" class="post-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>스토리 이미지</label>
+            {{ form.image }}
+        </div>
+
+        <button type="submit" class="submit-btn">올리기</button>
+    </form>
+</section>
+{% endblock %}

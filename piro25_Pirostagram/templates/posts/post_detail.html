@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="post-detail-section">
+    <article class="post-detail-card">
+        <div class="post-detail-image-box">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="게시글 이미지">
+            {% else %}
+                <div class="post-image">이미지 없음</div>
+            {% endif %}
+        </div>
+
+        <div class="post-detail-info">
+            <div class="post-header">
+                <div class="profile-circle"></div>
+
+                <a href="{% url 'posts:profile' post.author.username %}" class="username">
+                    {{ post.author.username }}
+                </a>
+
+                {% if post.author == request.user %}
+                    <div class="post-menu">
+                        <a href="{% url 'posts:post_update' post.id %}">수정</a>
+
+                        <form action="{% url 'posts:post_delete' post.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">삭제</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="post-detail-content">
+                <p>
+                    <strong>{{ post.author.username }}</strong>
+                    {{ post.content }}
+                </p>
+            </div>
+
+            <div class="comment-list detail-comment-list">
+                {% for comment in post.comments.all %}
+                    {% if not comment.parent %}
+                        <div class="comment-item">
+                            <div class="comment-main">
+                                <p>
+                                    <strong>{{ comment.author.username }}</strong>
+                                    {{ comment.content }}
+                                </p>
+
+                                <button 
+                                    type="button" 
+                                    class="reply-toggle-btn"
+                                    onclick="toggleReplyForm('{{ comment.id }}')"
+                                >
+                                    답글 달기
+                                </button>
+                            </div>
+
+                            {% if comment.author == request.user %}
+                                <div class="comment-menu">
+                                    <a href="{% url 'posts:comment_update' comment.id %}">수정</a>
+
+                                    <form action="{% url 'posts:comment_delete' comment.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit">삭제</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <form 
+                            action="{% url 'posts:reply_create' comment.id %}" 
+                            method="POST" 
+                            class="reply-form"
+                            id="reply-form-{{ comment.id }}"
+                        >
+                            {% csrf_token %}
+                            <input type="text" name="content" placeholder="답글 달기...">
+                            <button type="submit">게시</button>
+                        </form>
+
+                        {% for reply in comment.replies.all %}
+                            <div class="reply-item">
+                                <div>
+                                    <strong>{{ reply.author.username }}</strong>
+                                    {{ reply.content }}
+                                </div>
+
+                                {% if reply.author == request.user %}
+                                    <div class="comment-menu">
+                                        <a href="{% url 'posts:comment_update' reply.id %}">수정</a>
+
+                                        <form action="{% url 'posts:comment_delete' reply.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit">삭제</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% empty %}
+                    <p class="no-comment">아직 댓글이 없습니다.</p>
+                {% endfor %}
+            </div>
+
+            <div class="post-actions detail-actions">
+                <button 
+                    type="button"
+                    class="like-btn {% if post.id in liked_posts %}liked{% endif %}"
+                    data-post-id="{{ post.id }}"
+                    data-like-url="{% url 'posts:post_like' post.id %}"
+                >
+                    {% if post.id in liked_posts %}
+                        ♥
+                    {% else %}
+                        ♡
+                    {% endif %}
+                </button>
+
+                <span>댓글</span>
+                <span>공유</span>
+            </div>
+
+            <p class="post-like">
+                좋아요 <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>개
+            </p>
+
+            <form action="{% url 'posts:comment_create' post.id %}" method="POST" class="comment-form">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="댓글 달기...">
+                <button type="submit">게시</button>
+            </form>
+        </div>
+    </article>
+</section>
+{% endblock %}

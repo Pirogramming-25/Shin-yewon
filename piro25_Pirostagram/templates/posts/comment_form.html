@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="form-section">
+    <h2>댓글 수정하기</h2>
+
+    <form action="" method="POST" class="post-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>댓글 내용</label>
+            {{ form.content }}
+        </div>
+
+        <button type="submit" class="submit-btn">수정하기</button>
+    </form>
+</section>
+{% endblock %}
