@@ -1,0 +1,35 @@
+{% extends "my_gpt/base.html" %}
+{% block title %}감정 분석{% endblock %}
+{% block content %}
+<h1>😊 감정 분석</h1>
+<p>사용 모델: cardiffnlp/twitter-roberta-base-sentiment-latest</p>
+<p>입력 언어: 영어</p>
+
+<form id="sentiment-form">
+    {% csrf_token %}
+    <textarea id="sentiment-text" maxlength="1000" rows="5" placeholder="분석할 영어 문장을 입력하세요"></textarea>
+    <button type="submit" id="sentiment-submit">분석 실행</button>
+</form>
+
+<div id="sentiment-loading" style="display:none;">처리 중...</div>
+<div id="sentiment-error" style="color:red;"></div>
+<div id="sentiment-result"></div>
+
+<h3>최근 실행 기록</h3>
+{% if user.is_authenticated %}
+<ul>
+    {% for h in histories %}
+    <li>{{ h.created_at }} - {{ h.output_text }}</li>
+    {% empty %}
+    <li>기록이 없습니다.</li>
+    {% endfor %}
+</ul>
+{% else %}
+<ul id="sentiment-history"></ul>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/my_gpt/js/common.js"></script>
+<script src="/static/my_gpt/js/sentiment.js"></script>
+{% endblock %}
