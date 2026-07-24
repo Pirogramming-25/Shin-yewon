@@ -1,0 +1,29 @@
+{% extends "my_gpt/base.html" %}
+{% block title %}복합 분석{% endblock %}
+{% block content %}
+<h1>🔗 AI 고객 피드백 분석 리포트</h1>
+<p>사용 모델: sshleifer/distilbart-cnn-6-6 → cardiffnlp/twitter-roberta-base-sentiment-latest → unitary/toxic-bert</p>
+<p>입력 언어: 영어</p>
+
+<form id="combo-form">
+    {% csrf_token %}
+    <textarea id="combo-text" maxlength="5000" rows="10" placeholder="영어 고객 리뷰 또는 피드백을 입력하세요 (200자 이상)"></textarea>
+    <button type="submit" id="combo-submit">복합 분석 실행</button>
+</form>
+
+<div id="combo-loading" style="display:none;">처리 중...</div>
+<div id="combo-error" style="color:red;"></div>
+<div id="combo-result"></div>
+
+<h3>최근 실행 기록</h3>
+<ul>
+    {% for h in histories %}
+    <li>{{ h.created_at }} - {{ h.result_data.verdict }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/my_gpt/js/common.js"></script>
+<script src="/static/my_gpt/js/combo.js"></script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "my_gpt/base.html" %}
+{% block title %}유해 표현 분석{% endblock %}
+{% block content %}
+<h1>🚨 유해 표현 분석</h1>
+<p>사용 모델: unitary/toxic-bert</p>
+<p>입력 언어: 영어</p>
+
+<form id="moderate-form">
+    {% csrf_token %}
+    <textarea id="moderate-text" maxlength="1000" rows="5" placeholder="분석할 영어 문장을 입력하세요"></textarea>
+    <button type="submit" id="moderate-submit">분석 실행</button>
+</form>
+
+<div id="moderate-loading" style="display:none;">처리 중...</div>
+<div id="moderate-error" style="color:red;"></div>
+<div id="moderate-result"></div>
+
+<h3>최근 실행 기록</h3>
+<ul>
+    {% for h in histories %}
+    <li>{{ h.created_at }} - {{ h.output_text }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/my_gpt/js/common.js"></script>
+<script src="/static/my_gpt/js/moderate.js"></script>
+{% endblock %}
